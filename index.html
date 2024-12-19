@@ -1,0 +1,146 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>CPU Cache Visualizer</title>
+
+</head>
+
+<body>
+
+<!-- JS -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js" type="text/javascript"></script>
+<!-- <script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script> -->
+<script src="//code.jquery.com/ui/1.11.0/jquery-ui.min.js" type="text/javascript"></script>
+<script src="ui/jquery.pulse.js" type="text/javascript"></script>
+
+<!-- CSS -->
+<link href="//bootswatch.com/4/litera/bootstrap.min.css" rel="stylesheet">
+<!-- <link href="/css/bootstrap.custom.css" rel="stylesheet"> -->
+
+<style>
+.container{
+    width: 100%;    
+}
+</style>
+
+
+<div class="container">
+
+<div class="row">
+<div class="col-12">
+<!-- TODO  -->
+<!-- Allow user to select cache parameters -->
+<!-- <h2>CPU Cache Visualizer</h2> -->
+<!-- <div class="form-group">
+    <select class="form-control">
+        <option value="LRU"> LRU </option>
+    </select>
+</div> -->
+<br>
+<br>
+<h3> CPU Cache Visuzlizer </h2>
+<hr>
+
+<!-- Show cache Parameters -->
+<h4> Configuration Parameters </h4>
+<table class="table table-bordered table-striped ">
+    <thead>
+        <td style="width: 20%">Cache Size</td>
+        <td style="width: 20%">Associativity</td>
+        <td style="width: 20%">Block Size</td>
+        <td style="width: 20%">Write</td>
+        <td style="width: 20%">Replacement</td>
+    </thead>
+    <tbody>
+        <td id="cache_size"></td>
+        <td id="associativity"></td>
+        <td id="block_size"></td>
+        <td id="write_policy"></td>
+        <td id="replace_policy"></td>
+    </tbody>
+</table>
+
+
+<!-- Display the latest address being processed -->
+<h4> Last Memory Access </h4>
+<div id="Address"></div>
+<table class="table table-bordered table-striped table-sm"><!-- Add the follow class if we want condensed "table-condensed" -->
+    <thead>
+        <td style="width: 20%">Operation</td>
+        <td style="width: 40%">Tag</td>
+        <td style="width: 20%">Index</td>
+        <td style="width: 20%">Block</td>
+    </thead>
+    <tbody>
+        <td id="op"></td>
+        <td id="tag"></td>
+        <td id="index"></td>
+        <td id="block"></td>
+    </tbody>
+</table>
+
+
+<!-- Display table representing the cache -->
+<h4> Cachelines</h4>
+<div id="myTable" ></div>
+
+</div>
+</div>
+</div> <!-- End container tag-->
+
+<script src="src/instruction_trace.js" type="text/javascript"></script>
+<script src="src/cache_core.js" type="text/javascript"></script>
+<script src="ui/ui.js" type="text/javascript"></script>
+<script>
+
+// Cache parameters
+var cacheSize = 256;
+var assoc = 4;
+var blockSize = 8;
+
+// var cacheSize = 8192;
+// var assoc = 4;
+// var blockSize = 32;
+
+// Instantiate cache
+var myCache = new Cache(cacheSize, assoc, blockSize, cacheTableUpdate);
+
+// Update param table
+cacheParameterUpdate();
+
+// Generate the HTML table for the cache
+generateCacheTable('myTable', myCache.numSets, myCache.assoc);
+
+// Just a single test Address
+// var address = "7fcd61f8";
+
+// Access the cache
+// myCache.access(parseInt(address, 16), 'w');
+// myCache.access(parseInt(address, 16), 'r'); // access again (should be a hit)
+
+var readInstrSpeed = 1000, pulseTextSpeed = 900;
+var i=0;
+function accessCache() {
+    if (i < Instructions.length) {
+        console.log(i);
+        var instr = Instructions[i].split(" ");
+        var op = instr[0];
+        var addr = instr[1];
+        myCache.access(parseInt(addr, 16), op);
+        i++;
+        setTimeout(accessCache, readInstrSpeed);
+    }
+};
+
+accessCache();
+
+</script>
+
+</body>
+</html>
+
+
+
+
